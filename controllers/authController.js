@@ -1,5 +1,22 @@
+import jwt from "jsonwebtoken"
 import User from "../models/user.model.js"
+import env from "dotenv"
 
+env.config();
+
+
+//Create Json web token
+const jwtSecret = process.env.JWT_SECRET
+
+const jwtMaxAge = 3 * 24 * 60 * 60
+
+function createToken(id) {
+    return jwt.sign({ id }, jwtSecret, {
+        expiresIn: jwtMaxAge
+    })
+}
+
+//Controller actions
 export const signup_get = (req, res) => {
     res.render("signup")
 }
@@ -13,18 +30,30 @@ export const signup_post = async (req, res) => {
 
     try {
         const user = await User.create({ email, password })
-        res.status(201).json(user)
+        const token = createToken(user._id)
+        res.cookie("jwt", token, { httpOnly: true, maxAge: jwtMaxAge * 1000 })
+        res.status(201).json({ user: user._id })
     } catch (error) {
         console.log(error.message)
         if (error.code === 11000) {
-            res.status(400).json({ "Error": "Duplicate email, use a valid email" })
+            res.status(400).json({ error: "Duplicate email, use a valid email" })
+        } else if (error.message.includes("user validation failed: password:")) {
+            res.status(400).json({ error: "Minimum password length is 6 characters" })
         } else {
-            res.status(400).json({ "Error": error.message })
+            res.status(400).json({ error: error.message })
         }
     }
 
 }
 
-export const login_post = (req, res) => {
-    res.send("user login")
+export const login_post = async (req, res) => {
+    const { email, password } = req.body;
+
+    try {
+        const user = await User.login(email, password); //the .login() method is coming from the serSchema.statics.login func created inside the user model
+        res.status(200).json({ user: user._id });
+    } catch (err) {
+        res.status(400).json({});
+    }
+
 }
