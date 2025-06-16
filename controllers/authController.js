@@ -4,11 +4,10 @@ import env from "dotenv"
 
 env.config();
 
-
 //Create Json web token
 const jwtSecret = process.env.JWT_SECRET
 
-const jwtMaxAge = 3 * 24 * 60 * 60
+const jwtMaxAge = 3 * 24 * 60 * 60 //3 days because this one is in seconds
 
 function createToken(id) {
     return jwt.sign({ id }, jwtSecret, {
@@ -31,7 +30,7 @@ export const signup_post = async (req, res) => {
     try {
         const user = await User.create({ email, password })
         const token = createToken(user._id)
-        res.cookie("jwt", token, { httpOnly: true, maxAge: jwtMaxAge * 1000 })
+        res.cookie("jwt", token, { httpOnly: true, maxAge: jwtMaxAge * 1000 }) //3 days also but this one is in miliseconds
         res.status(201).json({ user: user._id })
     } catch (error) {
         console.log(error.message)
@@ -51,9 +50,12 @@ export const login_post = async (req, res) => {
 
     try {
         const user = await User.login(email, password); //the .login() method is coming from the serSchema.statics.login func created inside the user model
-        res.status(200).json({ user: user._id });
+        const token = createToken(user._id)
+        res.cookie("jwt", token, { httpOnly: true, maxAge: jwtMaxAge * 1000 }) //3 days also but this one is in miliseconds
+        res.status(201).json({ user: user._id })
     } catch (err) {
-        res.status(400).json({});
+        res.status(400).json({ error: "Incorrect email or password" }); // we send this custom json so the user doesn't it's an incorrect password or an incorrect email
+        console.log(err.message) // we log the actual err.message so only us know if it's an incorrect password or email
     }
 
 }

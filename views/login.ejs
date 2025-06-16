@@ -34,10 +34,10 @@
                 const data = await res.json()
                 console.log(data)
                 if (data.error) {
-                    errorResponse.textContent = data.error
+                    errorResponse.textContent = data.error //the .error is coming from authController
                 }
                 if (data.user) {
-                    location.assign("/") //this is where we redirect the user back to the homepage once they complete the signup process
+                    location.assign("/") //this is where we redirect the user back to the homepage once they complete the login process
                 }
             } catch (error) {
                 console.log(error)
