@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import authRoutes from './routes/authRoutes.js';
 import env from 'dotenv'
 import cookieParser from 'cookie-parser';
-import verifyJwt from './middlewares/authMiddleware.js';
+import verifyJwt, { checkUser } from './middlewares/authMiddleware.js';
 
 const app = express();
 const port = 5000;
@@ -35,8 +35,9 @@ mongoose.connect(dbURI)
   .catch(error => console.error(error));
 
 // routes
-app.get('/', (req, res) => res.render('home'));
-app.get('/smoothies', verifyJwt, (req, res) => res.render('smoothies'));
+//app.get('*', checkUser) //we check the user status for all get routes. The next() method would then let the logic move on to the next request in the stack
+app.get('/', checkUser, (req, res) => res.render('home'));
+app.get('/smoothies', verifyJwt, checkUser, (req, res) => res.render('smoothies.ejs'));
 
 // app.get("/set-cookies", (req, res) => {
 //   // res.setHeader("Set-Cookie", "newUser=true")

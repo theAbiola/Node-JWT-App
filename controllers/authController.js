@@ -10,7 +10,7 @@ const jwtSecret = process.env.JWT_SECRET
 const jwtMaxAge = 3 * 24 * 60 * 60 //3 days because this one is in seconds
 
 function createToken(id) {
-    return jwt.sign({ id }, jwtSecret, {
+    return jwt.sign({ id }, jwtSecret, { //we pass the id of the user when we call this func inside login and signup codeblocks below
         expiresIn: jwtMaxAge
     })
 }
@@ -49,7 +49,7 @@ export const login_post = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        const user = await User.login(email, password); //the .login() method is coming from the serSchema.statics.login func created inside the user model
+        const user = await User.login(email, password); //the .login() method is coming from the userSchema.statics.login func created inside the user model
         const token = createToken(user._id)
         res.cookie("jwt", token, { httpOnly: true, maxAge: jwtMaxAge * 1000 }) //3 days also but this one is in miliseconds
         res.status(201).json({ user: user._id })
@@ -58,4 +58,14 @@ export const login_post = async (req, res) => {
         console.log(err.message) // we log the actual err.message so only us know if it's an incorrect password or email
     }
 
+}
+
+//we replace the saved jwt with an empty string and set its maxAge to 1 millisecond which means that it automatically gets deleted from the browser cookie store
+export const logout_get = async (req, res) => {
+    try {
+        res.cookie("jwt", "", { maxAge: 1 })
+        res.redirect("/")
+    } catch (error) {
+        res.send("Internal server error")
+    }
 }

@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
     }
 )
 
-//fire a function before doc is saved to db
+//fire a function before doc is saved to db. The .pre() shows that it will fire before  
 userSchema.pre("save", async function (next) { //we use a function keyword instead of an arrow function so we can have access to 'this'
     const saltRounds = 10;
     //const salt = await bcrypt.genSalt(saltRounds); //if we wanted to use the salt instead of the shortcut of using the saltrounds, we would have to pass the salt as the second argument into the .hash() method instead
