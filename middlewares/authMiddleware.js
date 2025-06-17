@@ -22,8 +22,8 @@ function verifyJwt(req, res, next) {
             }
         })
     } else {
-        res.render("home.ejs", { authError: "You are not logged in, kindly login or signup then try again" })
-        //res.redirect("/login")
+        //res.render("home.ejs", { authError: "You are not logged in, kindly login or signup then try again" })
+        res.redirect("/login")
     }
 }
 
@@ -45,6 +45,7 @@ export const checkUser = (req, res, next) => {
         })
     } else {
         res.locals.user = null //setting the user locals variable to null if the token does not exist
+        //res.render("home.ejs", { user: res.locals.user })
         next()
     }
 
