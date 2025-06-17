@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import authRoutes from './routes/authRoutes.js';
 import env from 'dotenv'
 import cookieParser from 'cookie-parser';
+import verifyJwt from './middlewares/authMiddleware.js';
 
 const app = express();
 const port = 5000;
@@ -20,7 +21,7 @@ app.set('view engine', 'ejs');
 
 app.use(authRoutes);
 
-app.use(cookieParser()) //here we use the cookie-parser package as a middelware
+app.use(cookieParser()) //here we use the cookie-parser package as a middelware. It lets us set and read cookies
 
 // database connection
 const dbURI = process.env.MONGO_URI;
@@ -35,7 +36,7 @@ mongoose.connect(dbURI)
 
 // routes
 app.get('/', (req, res) => res.render('home'));
-app.get('/smoothies', (req, res) => res.render('smoothies'));
+app.get('/smoothies', verifyJwt, (req, res) => res.render('smoothies'));
 
 // app.get("/set-cookies", (req, res) => {
 //   // res.setHeader("Set-Cookie", "newUser=true")

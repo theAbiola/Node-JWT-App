@@ -30,7 +30,7 @@ export const signup_post = async (req, res) => {
     try {
         const user = await User.create({ email, password })
         const token = createToken(user._id)
-        res.cookie("jwt", token, { httpOnly: true, maxAge: jwtMaxAge * 1000 }) //3 days also but this one is in miliseconds
+        res.cookie("jwt", token, { httpOnly: true, maxAge: jwtMaxAge * 1000 }) //3 days also but this one is in miliseconds //we create the cookie, call it jwt, and pass the call to the createToken() function inside it.
         res.status(201).json({ user: user._id })
     } catch (error) {
         console.log(error.message)
